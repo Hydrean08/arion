@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Arion",
+    "slug": "arion",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0f0f13",
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0f0f13"
+      },
+      "package": "com.hydrean.arion",
+      "softwareKeyboardLayoutMode": "pan"
+    },
+    "ios": {
+      "bundleIdentifier": "com.hydrean.arion",
+      "supportsTablet": true
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35
+          }
+        }
+      ],
+      "expo-asset",
+      "expo-font",
+      "expo-secure-store"
+    ]
+  }
+}
