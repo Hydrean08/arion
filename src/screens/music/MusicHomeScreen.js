@@ -11,6 +11,7 @@ import { aria, ApiError } from '../../api/aria';
 import { getLastKnown } from '../../api/config';
 import { SkeletonArtistList } from '../../components/Skeleton';
 import { AriaHealthIndicator } from '../../components/AriaHealthIndicator';
+import AriaAITab from './AriaAITab';
 
 const LOG_LEVEL_COLOR = { error: colors.red, warn: colors.yellow, info: colors.accent2 };
 
