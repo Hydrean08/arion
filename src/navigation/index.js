@@ -13,6 +13,7 @@ import ItemDetailScreen   from '../screens/detail/ItemDetailScreen';
 import MusicHomeScreen    from '../screens/music/MusicHomeScreen';
 import ArtistDetailScreen from '../screens/music/ArtistDetailScreen';
 import SettingsScreen     from '../screens/settings/SettingsScreen';
+import PredictorDebugScreen from '../screens/settings/PredictorDebugScreen';
 
 export const navigationRef = createNavigationContainerRef();
 
@@ -59,10 +60,10 @@ function TabNavigator() {
         tabBarInactiveTintColor: colors.muted,
         tabBarIcon: ({ focused, color, size }) => {
           const icons = {
-            Discover: focused ? 'search'       : 'search-outline',
-            Video:    focused ? 'film'          : 'film-outline',
-            Music:    focused ? 'musical-notes' : 'musical-notes-outline',
-            Settings: focused ? 'settings'      : 'settings-outline',
+            Discover: focused ? 'search'        : 'search-outline',
+            Video:    focused ? 'film'           : 'film-outline',
+            Music:    focused ? 'musical-notes'  : 'musical-notes-outline',
+            Settings: focused ? 'settings'       : 'settings-outline',
           };
           return <Ionicons name={icons[route.name]} size={size} color={color} />;
         },
