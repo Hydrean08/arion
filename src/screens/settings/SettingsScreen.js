@@ -12,6 +12,7 @@ import { OrionHealthIndicator } from '../../components/OrionHealthIndicator';
 import { useNavigation } from '@react-navigation/native';
 
 export default function SettingsScreen() {
+  const navigation = useNavigation();
   const [orionUrl,    setOrionUrl]    = useState('');
   const [ariaUrl,     setAriaUrl]     = useState('');
   const [apiKey,      setApiKey]      = useState('');
