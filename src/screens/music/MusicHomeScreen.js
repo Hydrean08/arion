@@ -234,6 +234,8 @@ export default function MusicHomeScreen() {
             )}
           />
         )
+      ) : tab === 'ai' ? (
+        <AriaAITab />
       ) : (
         <>
           <View style={styles.logFilterRow}>
