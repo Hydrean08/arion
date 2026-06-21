@@ -89,8 +89,9 @@ export function AppNavigator() {
         <Root.Screen name="Main" component={TabNavigator} />
       </Root.Group>
       <Root.Group screenOptions={{ presentation: 'modal', animation: 'slide_from_bottom' }}>
-        <Root.Screen name="ItemDetail"   component={ItemDetailScreen} />
-        <Root.Screen name="ArtistDetail" component={ArtistDetailScreen} />
+        <Root.Screen name="ItemDetail"      component={ItemDetailScreen} />
+        <Root.Screen name="ArtistDetail"    component={ArtistDetailScreen} />
+        <Root.Screen name="PredictorDebug"  component={PredictorDebugScreen} />
       </Root.Group>
     </Root.Navigator>
   );
