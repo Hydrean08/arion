@@ -1,15 +1,17 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useMemo } from 'react';
 import {
   View, Text, TouchableOpacity, TextInput,
-  StyleSheet, Dimensions, RefreshControl, AppState,
+  StyleSheet, RefreshControl, AppState, useWindowDimensions,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { colors } from '../../theme';
 import { orion, ApiError } from '../../api/orion';
+import { getLastKnown } from '../../api/config';
 import { PosterCard } from '../../components/PosterCard';
 import { SkeletonPosterGrid } from '../../components/Skeleton';
+import { OrionHealthIndicator } from '../../components/OrionHealthIndicator';
 
 const FILTERS = [
   { key: 'all',     label: 'All' },
@@ -22,12 +24,12 @@ const FILTERS = [
 
 const LOG_LEVEL_COLOR = { error: colors.red, warn: colors.yellow, info: colors.accent2 };
 
-const COLS   = Math.floor(Dimensions.get('window').width / 130);
-const CARD_W = (Dimensions.get('window').width - 24 - (COLS - 1) * 10) / COLS;
-const CARD_H = Math.round(CARD_W * 1.5);
-
 export default function LibraryScreen() {
   const navigation = useNavigation();
+  const { width } = useWindowDimensions();
+  const COLS   = Math.floor(width / 130);
+  const CARD_W = (width - 24 - (COLS - 1) * 10) / COLS;
+  const CARD_H = Math.round(CARD_W * 1.5);
   const [tab,         setTab]         = useState('items');
   const [allItems,    setAllItems]    = useState([]);
   const [stats,       setStats]       = useState(null);
@@ -41,6 +43,17 @@ export default function LibraryScreen() {
   const [offline,     setOffline]     = useState(false);
   const intervalRef = useRef(null);
 
+  const hydrateFromCache = useCallback(() => {
+    const cItems = getLastKnown('orion', '/api/items');
+    const cStats = getLastKnown('orion', '/api/stats');
+    const cLogs  = getLastKnown('orion', '/api/logs');
+    let any = false;
+    if (Array.isArray(cItems?.data)) { setAllItems(cItems.data); any = true; }
+    if (cStats?.data)                { setStats(cStats.data);    any = true; }
+    if (Array.isArray(cLogs?.data))  { setLogs(cLogs.data);      any = true; }
+    return any;
+  }, []);
+
   const load = useCallback(async (refresh = false) => {
     if (refresh) setRefreshing(true); else setLoading(true);
     setError(null);
@@ -53,21 +66,23 @@ export default function LibraryScreen() {
     } catch (e) {
       if (e instanceof ApiError && e.isOffline) {
         setOffline(true);
+        hydrateFromCache();
       } else {
         setError(e.message || 'Failed to load library');
       }
     } finally { setLoading(false); setRefreshing(false); }
-  }, []);
+  }, [hydrateFromCache]);
 
   useFocusEffect(useCallback(() => {
+    if (hydrateFromCache()) setLoading(false);
     load();
     intervalRef.current = setInterval(() => {
       if (AppState.currentState === 'active') load(true);
     }, 60000);
     return () => clearInterval(intervalRef.current);
-  }, [load]));
+  }, [load, hydrateFromCache]));
 
-  const filteredItems = () => {
+  const filteredItems = useMemo(() => {
     let items = allItems;
     if (filter === 'pending')      items = items.filter(i => i.status === 'pending');
     else if (filter === 'queued')  items = items.filter(i => i.status === 'queued');
@@ -75,7 +90,7 @@ export default function LibraryScreen() {
     else if (filter !== 'all')     items = items.filter(i => i.type === filter);
     if (searchQuery) items = items.filter(i => i.title.toLowerCase().includes(searchQuery.toLowerCase()));
     return items;
-  };
+  }, [allItems, filter, searchQuery]);
 
   if (loading) return <SkeletonPosterGrid showStats />;
 
@@ -91,7 +106,7 @@ export default function LibraryScreen() {
       {error && (
         <View style={styles.bannerError}>
           <Text style={styles.bannerText}>{error}</Text>
-          <TouchableOpacity onPress={() => load(true)} style={styles.bannerRetry}>
+          <TouchableOpacity onPress={() => load(true)} style={styles.bannerRetry} accessibilityRole="button" accessibilityLabel="Retry">
             <Text style={styles.bannerRetryText}>Retry</Text>
           </TouchableOpacity>
         </View>
@@ -144,7 +159,7 @@ export default function LibraryScreen() {
             ))}
           </View>
           <FlashList
-            data={filteredItems()}
+            data={filteredItems}
             numColumns={COLS}
             estimatedItemSize={CARD_H + 50}
             keyExtractor={item => String(item.id)}
@@ -180,7 +195,7 @@ export default function LibraryScreen() {
           <FlashList
             data={logFilter === 'all' ? logs : logs.filter(l => l.level?.toLowerCase() === logFilter)}
             estimatedItemSize={64}
-            keyExtractor={(_, i) => String(i)}
+            keyExtractor={(item, i) => item.ts ?? item.at ?? String(i)}
             contentContainerStyle={styles.logsContent}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor={colors.accent} />}
             ListEmptyComponent={<Text style={styles.empty}>No logs yet.</Text>}
