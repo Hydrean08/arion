@@ -87,7 +87,9 @@ export const orion = {
   // Returns { ok, checks: { cycle: { status, age_seconds, poll_interval },
   // predictor_db: { status, feature_kinds }, tmdb_cache: { entries, ttl_seconds } } }.
   // Always uncached — staleness here would defeat the entire purpose.
-  health: () => req('/health', 'GET', null, { skipCache: true }),
+  // 503 is a valid response shape ("degraded") — accept it so the UI can
+  // render the structured body instead of treating it as a network error.
+  health: () => req('/health', 'GET', null, { skipCache: true, acceptedStatuses: [503] }),
 
   // Predictor diagnostics: top dead-rate features (release groups, hashes,
   // CDN hosts). Useful for "why isn't this episode resolving" debugging.
