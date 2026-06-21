@@ -105,6 +105,9 @@ export const aria = {
     req('/api/tracks/download', 'POST', { track_id: trackId, title, artist, album, year }),
 
   runCycle:        ()                              => req('/api/cycle/run', 'POST'),
+  // Walks MUSIC_DIR + marks already-on-disk albums complete. Returns
+  // { scanned_artists, matched_albums, unmatched_dirs }.
+  scanExisting:    ()                              => req('/api/scan-existing', 'POST'),
 
   // ── AI (GLM-4 powered) ────────────────────────────────────────────────
   aiSuggestions:   ()                              => req('/api/ai-suggestions'),
