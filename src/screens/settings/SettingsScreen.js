@@ -8,6 +8,8 @@ import { colors } from '../../theme';
 import { getConfig, saveConfig } from '../../api/config';
 import { orion } from '../../api/orion';
 import { aria } from '../../api/aria';
+import { OrionHealthIndicator } from '../../components/OrionHealthIndicator';
+import { useNavigation } from '@react-navigation/native';
 
 export default function SettingsScreen() {
   const [orionUrl,    setOrionUrl]    = useState('');
@@ -26,7 +28,12 @@ export default function SettingsScreen() {
   }, []);
 
   const save = useCallback(async () => {
-    await saveConfig({ orion: orionUrl, aria: ariaUrl, apiKey });
+    const config = await getConfig();
+    await saveConfig({
+      orion:  orionUrl.trim()  || config.orion,
+      aria:   ariaUrl.trim()   || config.aria,
+      apiKey,
+    });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }, [orionUrl, ariaUrl, apiKey]);
@@ -36,8 +43,9 @@ export default function SettingsScreen() {
     try {
       await orion.stats();
       setOrionStatus('ok');
-    } catch {
+    } catch (e) {
       setOrionStatus('fail');
+      Alert.alert('Orion test failed', e?.message || 'Unknown error');
     }
   }, []);
 
@@ -46,8 +54,9 @@ export default function SettingsScreen() {
     try {
       await aria.stats();
       setAriaStatus('ok');
-    } catch {
+    } catch (e) {
       setAriaStatus('fail');
+      Alert.alert('Aria test failed', e?.message || 'Unknown error');
     }
   }, []);
 
@@ -122,7 +131,7 @@ export default function SettingsScreen() {
             placeholderTextColor={colors.muted}
             placeholder="http://192.168.1.10:8888"
           />
-          <TouchableOpacity style={styles.testBtn} onPress={testOrion} disabled={orionStatus === 'testing'}>
+          <TouchableOpacity style={styles.testBtn} onPress={testOrion} disabled={orionStatus === 'testing'} accessibilityRole="button" accessibilityLabel="Test Orion connection">
             <Text style={[styles.testBtnText, orionStatus === 'ok' && { color: colors.green }, orionStatus === 'fail' && { color: colors.red }]}>
               {orionStatus === 'testing' ? '…' : orionStatus === 'ok' ? '✓' : orionStatus === 'fail' ? '✗' : 'Test'}
             </Text>
@@ -141,7 +150,7 @@ export default function SettingsScreen() {
             placeholderTextColor={colors.muted}
             placeholder="http://192.168.1.10:7171"
           />
-          <TouchableOpacity style={styles.testBtn} onPress={testAria} disabled={ariaStatus === 'testing'}>
+          <TouchableOpacity style={styles.testBtn} onPress={testAria} disabled={ariaStatus === 'testing'} accessibilityRole="button" accessibilityLabel="Test Aria connection">
             <Text style={[styles.testBtnText, ariaStatus === 'ok' && { color: colors.green }, ariaStatus === 'fail' && { color: colors.red }]}>
               {ariaStatus === 'testing' ? '…' : ariaStatus === 'ok' ? '✓' : ariaStatus === 'fail' ? '✗' : 'Test'}
             </Text>
