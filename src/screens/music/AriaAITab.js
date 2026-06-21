@@ -185,23 +185,32 @@ export default function AriaAITab() {
         {suggestions.length === 0 ? (
           <Text style={styles.emptyText}>No suggestions yet — refreshes weekly.</Text>
         ) : (
-          suggestions.map(s => (
-            <View key={s.id} style={styles.suggCard}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.suggName}>{s.artist_name}</Text>
-                <Text style={styles.suggReason}>{s.reason}</Text>
-                {s.source_artist ? <Text style={styles.suggSource}>Like {s.source_artist}</Text> : null}
+          suggestions.map(s => {
+            const inLib = libraryArtists.has((s.artist_name || '').toLowerCase().trim());
+            return (
+              <View key={s.id} style={styles.suggCard}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.suggName}>{s.artist_name}</Text>
+                  <Text style={styles.suggReason}>{s.reason}</Text>
+                  {s.source_artist ? <Text style={styles.suggSource}>Like {s.source_artist}</Text> : null}
+                </View>
+                <View style={styles.suggActions}>
+                  {inLib ? (
+                    <View style={styles.inLibTag}>
+                      <Text style={styles.inLibTagText}>✓ In library</Text>
+                    </View>
+                  ) : (
+                    <TouchableOpacity style={styles.addBtn} onPress={() => addSuggestion(s)}>
+                      <Text style={styles.addBtnText}>+ Add</Text>
+                    </TouchableOpacity>
+                  )}
+                  <TouchableOpacity style={styles.dismissBtn} onPress={() => dismissSuggestion(s.id)}>
+                    <Text style={styles.dismissBtnText}>✕</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <View style={styles.suggActions}>
-                <TouchableOpacity style={styles.addBtn} onPress={() => addSuggestion(s)}>
-                  <Text style={styles.addBtnText}>+ Add</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.dismissBtn} onPress={() => dismissSuggestion(s.id)}>
-                  <Text style={styles.dismissBtnText}>✕</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))
+            );
+          })
         )}
 
         {/* ── New releases ── */}
