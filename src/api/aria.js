@@ -105,4 +105,18 @@ export const aria = {
     req('/api/tracks/download', 'POST', { track_id: trackId, title, artist, album, year }),
 
   runCycle:        ()                              => req('/api/cycle/run', 'POST'),
+
+  // ── AI (GLM-4 powered) ────────────────────────────────────────────────
+  aiSuggestions:   ()                              => req('/api/ai-suggestions'),
+  dismissSuggestion: (id)                          => req(`/api/ai-suggestions/${id}`, 'DELETE'),
+  aiPlaylists:     ()                              => req('/api/ai-playlists'),
+  deletePlaylist:  (id)                            => req(`/api/ai-playlists/${id}`, 'DELETE'),
+  generatePlaylist:    ()                          => req('/api/ai-playlists/generate', 'POST'),
+  generateMoodPlaylist: (mood)                     => req('/api/ai-playlists/mood', 'POST', { mood }),
+  aiReleases:      ()                              => req('/api/ai-releases'),
+  dismissRelease:  (id)                            => req(`/api/ai-releases/${id}`, 'DELETE'),
+  refreshReleases: ()                              => req('/api/ai-releases/refresh', 'POST'),
+  aiDigest:        ()                              => req('/api/ai-digest', 'GET', null, { skipCache: true }),
+  lyricSearch:     (query)                         => req('/api/ai-lyric-search', 'POST', { query }),
+  autoGenres:      (artistId)                      => req(`/api/artists/${artistId}/auto-genres`, 'POST'),
 };
