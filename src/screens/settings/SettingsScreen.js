@@ -182,6 +182,12 @@ export default function SettingsScreen() {
             signals you'd otherwise need to SSH in to check. */}
         <OrionHealthIndicator />
 
+        <Text style={styles.sectionHead}>Aria Status</Text>
+        {/* Music manager's health. Cycle status, DB readability, and Ollama
+            reachability (Ollama down only disables AI suggestions; music
+            sync keeps running). */}
+        <AriaHealthIndicator />
+
         <View style={styles.divider} />
         <Text style={styles.sectionHead}>Actions</Text>
 
