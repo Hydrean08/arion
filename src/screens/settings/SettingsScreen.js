@@ -9,6 +9,7 @@ import { getConfig, saveConfig } from '../../api/config';
 import { orion } from '../../api/orion';
 import { aria } from '../../api/aria';
 import { OrionHealthIndicator } from '../../components/OrionHealthIndicator';
+import { AriaHealthIndicator } from '../../components/AriaHealthIndicator';
 import { useNavigation } from '@react-navigation/native';
 
 export default function SettingsScreen() {
