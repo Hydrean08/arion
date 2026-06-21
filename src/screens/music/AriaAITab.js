@@ -380,6 +380,8 @@ const styles = StyleSheet.create({
   suggActions:   { flexDirection: 'column', gap: 6 },
   addBtn:        { backgroundColor: colors.accent, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
   addBtnText:    { color: colors.text, fontSize: 12, fontWeight: '700' },
+  inLibTag:      { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, borderWidth: 1, borderColor: colors.green, alignItems: 'center' },
+  inLibTagText:  { color: colors.green, fontSize: 11, fontWeight: '700' },
   dismissBtn:    { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, alignItems: 'center' },
   dismissBtnText:{ color: colors.muted, fontSize: 16 },
 
