@@ -165,6 +165,11 @@ export default function MusicHomeScreen() {
         >
           <Text style={[styles.tabPillText, tab === 'logs' && styles.tabPillTextActive]}>Logs</Text>
         </TouchableOpacity>
+        {/* Mirrors the dot on Library (Orion side). Green = cycle healthy,
+            amber = warming/stale, red = unreachable. */}
+        <View style={{ marginLeft: 'auto' }}>
+          <AriaHealthIndicator compact />
+        </View>
       </View>
 
       {tab === 'artists' ? (
