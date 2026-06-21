@@ -126,6 +126,12 @@ export default function LibraryScreen() {
         >
           <Text style={[styles.tabPillText, tab === 'logs' && styles.tabPillTextActive]}>Logs</Text>
         </TouchableOpacity>
+        {/* At-a-glance: green = cycle healthy, amber = stale/warming,
+            red = unreachable. Tap forces a refresh; press-and-hold could
+            be wired to the Settings status screen later. */}
+        <View style={{ marginLeft: 'auto' }}>
+          <OrionHealthIndicator compact />
+        </View>
       </View>
 
       {tab === 'items' ? (
