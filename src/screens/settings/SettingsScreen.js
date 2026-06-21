@@ -116,6 +116,27 @@ export default function SettingsScreen() {
     );
   }, []);
 
+  const scanAriaLibrary = useCallback(() => {
+    Alert.alert(
+      'Scan Existing Library',
+      'Walk Aria\'s music folder and mark already-on-disk albums as complete. Safe to re-run.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Scan', onPress: async () => {
+          try {
+            const r = await aria.scanExisting();
+            Alert.alert(
+              'Scan complete',
+              `Matched ${r.matched_albums} album${r.matched_albums === 1 ? '' : 's'} across ${r.scanned_artists} artists (${r.unmatched_dirs} unmatched dirs).`
+            );
+          } catch (e) {
+            Alert.alert('Error', e.message);
+          }
+        }},
+      ],
+    );
+  }, []);
+
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
