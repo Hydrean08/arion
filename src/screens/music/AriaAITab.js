@@ -20,6 +20,10 @@ export default function AriaAITab() {
   const [suggestions, setSuggestions] = useState([]);
   const [releases, setReleases] = useState([]);
   const [playlists, setPlaylists] = useState([]);
+  // Set of lowercased artist names already in the library — used to gray
+  // out suggestions for artists Chuck is already following so he doesn't
+  // see "+ Add" on duplicates.
+  const [libraryArtists, setLibraryArtists] = useState(new Set());
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
 
