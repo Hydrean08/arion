@@ -45,12 +45,14 @@ export default function AriaAITab() {
   const loadAll = useCallback(async (forceDigest = false) => {
     setRefreshing(true);
     try {
-      const [s, r, p] = await Promise.all([
+      const [s, r, p, libArtists] = await Promise.all([
         aria.aiSuggestions().catch(() => []),
         aria.aiReleases().catch(() => []),
         aria.aiPlaylists().catch(() => []),
+        aria.artists().catch(() => []),
       ]);
       setSuggestions(s); setReleases(r); setPlaylists(p);
+      setLibraryArtists(new Set((libArtists || []).map(a => (a.name || '').toLowerCase().trim())));
       if (forceDigest || digest == null) {
         setDigestLoading(true);
         aria.aiDigest()
