@@ -91,8 +91,13 @@ android {
         applicationId 'com.hydrean.arion'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0.0"
+        // Auto-increment versionCode every build so in-place install always
+        // accepts the new APK. Hardcoded `versionCode 1` makes Android refuse
+        // to upgrade with INSTALL_FAILED_VERSION_DOWNGRADE on every rebuild.
+        // Formula: minutes since 2026-01-01 UTC → unique, monotonic, safe.
+        def buildCode = (((System.currentTimeMillis() - 1735689600000L) / 60000L) as int)
+        versionCode buildCode
+        versionName "1.0.${buildCode}"
     }
     signingConfigs {
         debug {
