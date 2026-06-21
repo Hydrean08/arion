@@ -175,6 +175,13 @@ export default function SettingsScreen() {
         </TouchableOpacity>
 
         <View style={styles.divider} />
+        <Text style={styles.sectionHead}>Orion Status</Text>
+        {/* Self-polling indicator hits /health every 30s. Shows cycle
+            freshness, predictor DB health, and TMDB cache size — the same
+            signals you'd otherwise need to SSH in to check. */}
+        <OrionHealthIndicator />
+
+        <View style={styles.divider} />
         <Text style={styles.sectionHead}>Actions</Text>
 
         <TouchableOpacity style={styles.actionBtn} onPress={scanJellyfin}>
@@ -190,6 +197,14 @@ export default function SettingsScreen() {
         <TouchableOpacity style={styles.actionBtn} onPress={runAriaCycle}>
           <Text style={styles.actionIcon}>🎵</Text>
           <Text style={styles.actionLabel}>Run Aria Download Cycle</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.actionBtn}
+          onPress={() => navigation.navigate('PredictorDebug')}
+        >
+          <Text style={styles.actionIcon}>🔍</Text>
+          <Text style={styles.actionLabel}>Predictor Debug</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
