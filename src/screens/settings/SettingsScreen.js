@@ -227,6 +227,11 @@ export default function SettingsScreen() {
           <Text style={styles.actionLabel}>Run Aria Download Cycle</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity style={styles.actionBtn} onPress={scanAriaLibrary}>
+          <Text style={styles.actionIcon}>📁</Text>
+          <Text style={styles.actionLabel}>Scan Existing Library</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity
           style={styles.actionBtn}
           onPress={() => navigation.navigate('PredictorDebug')}
