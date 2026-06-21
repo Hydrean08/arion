@@ -47,7 +47,12 @@ async function req(path, method = 'GET', body = null, opts = {}) {
 
   const r = await fetchWithRetry(aria + path, options);
 
-  if (!r.ok) {
+  // opts.acceptedStatuses lets a caller treat specific error codes as
+  // "service responded with a structured body" rather than a thrown error.
+  // /health uses this so a 503 (degraded) is parsed and displayed instead
+  // of bubbled up as a raw error string in the UI.
+  const accepted = opts.acceptedStatuses ?? [];
+  if (!r.ok && !accepted.includes(r.status)) {
     const text = await r.text().catch(() => 'Unknown error');
     throw new ApiError(text.slice(0, 200), r.status, false);
   }
