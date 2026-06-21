@@ -68,8 +68,9 @@ export default function AriaAITab() {
 
   const addSuggestion = async (s) => {
     try {
-      await aria.addArtist?.(s.artist_name) ?? aria.dismissSuggestion(s.id);
+      await aria.addArtist(s.artist_name);
       Alert.alert('Added', `${s.artist_name} added to library.`);
+      // Auto-dismiss the suggestion since it's no longer relevant.
       dismissSuggestion(s.id);
     } catch (e) {
       Alert.alert('Could not add', e?.message || String(e));
