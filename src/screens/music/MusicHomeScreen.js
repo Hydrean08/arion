@@ -8,7 +8,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { colors } from '../../theme';
 import { aria, ApiError } from '../../api/aria';
+import { getLastKnown } from '../../api/config';
 import { SkeletonArtistList } from '../../components/Skeleton';
+import { AriaHealthIndicator } from '../../components/AriaHealthIndicator';
 
 const LOG_LEVEL_COLOR = { error: colors.red, warn: colors.yellow, info: colors.accent2 };
 
@@ -52,6 +54,13 @@ export default function MusicHomeScreen() {
     } catch (e) {
       if (e instanceof ApiError && e.isOffline) {
         setOffline(true);
+        const cached = getLastKnown('aria');
+        if (cached) {
+          const { path, data } = cached;
+          if (path === '/api/artists' && Array.isArray(data)) setMyArtists(data);
+          else if (path === '/api/stats' && data) setStats(data);
+          else if (path === '/api/logs' && Array.isArray(data)) setLogs(data);
+        }
       } else {
         setError(e.message || 'Failed to load music library');
       }
@@ -204,6 +213,8 @@ export default function MusicHomeScreen() {
                   style={styles.deleteBtn}
                   onPress={() => deleteArtist(item)}
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Remove ${item.name}`}
                 >
                   <Text style={styles.deleteBtnText}>✕</Text>
                 </TouchableOpacity>
@@ -229,7 +240,7 @@ export default function MusicHomeScreen() {
           <FlashList
             data={logFilter === 'all' ? logs : logs.filter(l => l.level?.toLowerCase() === logFilter)}
             estimatedItemSize={64}
-            keyExtractor={(_, i) => String(i)}
+            keyExtractor={(item, i) => item.at ?? String(i)}
             contentContainerStyle={styles.logsContent}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor={colors.accent} />}
             ListEmptyComponent={<Text style={styles.empty}>No logs yet.</Text>}
@@ -269,6 +280,8 @@ function AlbumRow({ album, onPress, onRetry }) {
           style={styles.retryBtn}
           onPress={() => onRetry(album.id)}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessibilityRole="button"
+          accessibilityLabel="Retry album"
         >
           <Text style={styles.retryBtnText}>↺</Text>
         </TouchableOpacity>
