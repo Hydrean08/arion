@@ -1,7 +1,7 @@
 import { getConfig, setLastKnown } from './config';
 
-const DEFAULT_TIMEOUT = 15000;
-const MAX_RETRIES = 2;
+const DEFAULT_TIMEOUT = 12000;
+const MAX_RETRIES = 1;
 
 class ApiError extends Error {
   constructor(message, status, isOffline = false) {
@@ -19,6 +19,7 @@ function sleep(ms) {
 async function fetchWithRetry(url, options, retries = MAX_RETRIES) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), options.timeout || DEFAULT_TIMEOUT);
+  const started = Date.now();
 
   try {
     const res = await fetch(url, { ...options, signal: controller.signal });
@@ -26,12 +27,14 @@ async function fetchWithRetry(url, options, retries = MAX_RETRIES) {
     return res;
   } catch (err) {
     clearTimeout(timeoutId);
+    const elapsed = Date.now() - started;
+    const detail = `URL: ${url}\nElapsed: ${elapsed}ms\nName: ${err?.name}\nMessage: ${err?.message}`;
     const isOffline = !navigator?.onLine || err.name === 'AbortError' || err.message?.includes('Network');
     if (retries > 0) {
       await sleep(1000 * (MAX_RETRIES - retries + 1));
       return fetchWithRetry(url, options, retries - 1);
     }
-    throw new ApiError(err.message, 0, isOffline);
+    throw new ApiError(detail, 0, isOffline);
   }
 }
 
@@ -52,13 +55,17 @@ async function req(path, method = 'GET', body = null, opts = {}) {
   const data = await r.json();
 
   if (method === 'GET' && !opts.skipCache) {
-    setLastKnown('aria', { path, data, at: Date.now() });
+    setLastKnown('aria', path, data);
   }
   return data;
 }
 
 export { ApiError };
 export const aria = {
+  // Returns { ok, checks: { cycle: { status, age_seconds, interval },
+  // db: { status }, ollama: { status } } }. Always uncached — staleness
+  // here defeats the purpose.
+  health:          ()                              => req('/health', 'GET', null, { skipCache: true }),
   stats:           ()                              => req('/api/stats'),
   logs:            ()                              => req('/api/logs'),
   charts:          ()                              => req('/api/charts'),
