@@ -69,8 +69,10 @@ export { ApiError };
 export const aria = {
   // Returns { ok, checks: { cycle: { status, age_seconds, interval },
   // db: { status }, ollama: { status } } }. Always uncached — staleness
-  // here defeats the purpose.
-  health:          ()                              => req('/health', 'GET', null, { skipCache: true }),
+  // here defeats the purpose. 503 is a valid response shape ("degraded")
+  // — accept it so the UI can render the structured body instead of
+  // treating it as a network error.
+  health:          ()                              => req('/health', 'GET', null, { skipCache: true, acceptedStatuses: [503] }),
   stats:           ()                              => req('/api/stats'),
   logs:            ()                              => req('/api/logs'),
   charts:          ()                              => req('/api/charts'),
