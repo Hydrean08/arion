@@ -161,6 +161,12 @@ export default function MusicHomeScreen() {
           <Text style={[styles.tabPillText, tab === 'artists' && styles.tabPillTextActive]}>My Artists</Text>
         </TouchableOpacity>
         <TouchableOpacity
+          style={[styles.tabPill, tab === 'ai' && styles.tabPillActive]}
+          onPress={() => setTab('ai')}
+        >
+          <Text style={[styles.tabPillText, tab === 'ai' && styles.tabPillTextActive]}>AI</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
           style={[styles.tabPill, tab === 'logs' && styles.tabPillActive]}
           onPress={() => setTab('logs')}
         >
