@@ -6,11 +6,14 @@ Android mobile companion app for **[Orion](https://github.com/Hydrean08/orion)**
 
 Arion is a thin native shell that points at your own Orion and Aria instances:
 
-- **Library browse and search** across both services from one home screen
-- **Aria's AI suggestions panel** — surfaces the local-LLM-generated weekly artist suggestions and themed/mood playlists
-- **Orion stream status** — see Bayesian-predictor candidate rankings and health
-- **Settings screen** with live connection tests for both backends (URL, API key, ping)
-- **Push notifications** via Expo for download/playlist events
+- **Library** — browse your media library backed by Orion (movies, shows) with detail pages
+- **Discover** — tabbed music + video discovery surface backed by Aria and Orion
+- **Music home** — artist and album views backed by Aria, with track modals
+- **AI tab** — surfaces Aria's local-LLM-generated weekly artist suggestions and themed / mood playlists (with one-tap regenerate)
+- **Health indicators** — separate Orion + Aria status badges so you can tell at a glance which backend is having a moment
+- **Predictor Debug screen** — surfaces Orion's Bayesian failure-predictor DB health and freshness
+- **Settings** with live connection tests for both backends (URL, API key, ping)
+- **Push notifications** via Expo for backend-emitted events
 - **Secure credential storage** via `expo-secure-store`
 
 There is no bundled backend, no cloud service, no telemetry. You point Arion at your own URLs (LAN, VPN, or tunneled) and it speaks to your instances directly.
