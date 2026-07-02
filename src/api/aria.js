@@ -103,6 +103,10 @@ export const aria = {
   spotifyAlbumTracks: (spotifyAlbumId)                => req(`/api/spotify/album/${spotifyAlbumId}/tracks`),
   downloadTrack:      (trackId, title, artist, album, year) =>
     req('/api/tracks/download', 'POST', { track_id: trackId, title, artist, album, year }),
+  // Live download activity feed → { active, items: [{ id, kind, artist,
+  // album, title, source, state, error, at }] }. Uncached so progress is
+  // always fresh while a download is in flight.
+  downloads:          ()                              => req('/api/downloads', 'GET', null, { skipCache: true }),
 
   runCycle:        ()                              => req('/api/cycle/run', 'POST'),
   // Walks MUSIC_DIR + marks already-on-disk albums complete. Returns
