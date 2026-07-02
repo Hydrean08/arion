@@ -87,21 +87,29 @@ export default function ArtistDetailScreen() {
 
   useEffect(() => { loadData(); }, [artist.id]);
 
+  const typeOf = (a) => a.record_type || a.type;
   const filteredAlbums = albums.filter(a => {
-    if (discFilter === 'Albums')       { if ((a.record_type || a.type) !== 'album')  return false; }
-    else if (discFilter === 'EPs')     { if ((a.record_type || a.type) !== 'ep')     return false; }
-    else if (discFilter === 'Singles') { if ((a.record_type || a.type) !== 'single') return false; }
+    const t = typeOf(a);
+    if (discFilter === 'Variants') { if (!a.is_variant) return false; }
+    else {
+      if (a.is_variant) return false;   // alternates/remixes/features live under Variants
+      if (discFilter === 'Albums'  && t !== 'album')  return false;
+      if (discFilter === 'EPs'     && t !== 'ep')     return false;
+      if (discFilter === 'Singles' && t !== 'single') return false;
+    }
     if (discSearch) return a.title.toLowerCase().includes(discSearch.toLowerCase());
     return true;
   });
 
   // Counts per release type for the filter pills (monochrome-style "Albums (12)").
-  const typeOf = (a) => a.record_type || a.type;
+  // Primary counts exclude variants; Variants gets its own bucket.
+  const primary = albums.filter(a => !a.is_variant);
   const discCounts = {
-    All:     albums.length,
-    Albums:  albums.filter(a => typeOf(a) === 'album').length,
-    EPs:     albums.filter(a => typeOf(a) === 'ep').length,
-    Singles: albums.filter(a => typeOf(a) === 'single').length,
+    All:      primary.length,
+    Albums:   primary.filter(a => typeOf(a) === 'album').length,
+    EPs:      primary.filter(a => typeOf(a) === 'ep').length,
+    Singles:  primary.filter(a => typeOf(a) === 'single').length,
+    Variants: albums.filter(a => a.is_variant).length,
   };
 
   const openAlbum = useCallback(async (album) => {
