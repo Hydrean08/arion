@@ -95,6 +95,15 @@ export default function ArtistDetailScreen() {
     return true;
   });
 
+  // Counts per release type for the filter pills (monochrome-style "Albums (12)").
+  const typeOf = (a) => a.record_type || a.type;
+  const discCounts = {
+    All:     albums.length,
+    Albums:  albums.filter(a => typeOf(a) === 'album').length,
+    EPs:     albums.filter(a => typeOf(a) === 'ep').length,
+    Singles: albums.filter(a => typeOf(a) === 'single').length,
+  };
+
   const openAlbum = useCallback(async (album) => {
     setTrackModal(album);
     setModalLoading(true);
