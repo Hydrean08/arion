@@ -16,8 +16,10 @@ export const colors = {
 export const statusColors = {
   resolved:    colors.green,
   complete:    colors.green,
+  done:        colors.green,
   partial:     colors.yellow,
   pending:     colors.blue,
+  queued:      colors.blue,
   downloading: colors.accent2,
   missing:     colors.muted,
   failed:      colors.red,
@@ -27,8 +29,10 @@ export const statusColors = {
 export const statusBg = {
   resolved:    '#14401a',
   complete:    '#14401a',
+  done:        '#14401a',
   partial:     '#2d2a00',
   pending:     '#1a1a2e',
+  queued:      '#1a1a2e',
   downloading: '#1e1a3a',
   missing:     '#1e1e2e',
   failed:      '#3d1515',
