@@ -85,6 +85,12 @@ function TabNavigator() {
         {() => <ErrorBoundary><LibraryScreen /></ErrorBoundary>}
       </Tab.Screen>
       <Tab.Screen name="Music"   >{() => <ErrorBoundary><MusicStack /></ErrorBoundary>}</Tab.Screen>
+      <Tab.Screen
+        name="Downloads"
+        options={{ tabBarBadge: activeDownloads > 0 ? activeDownloads : undefined }}
+      >
+        {() => <ErrorBoundary><DownloadsScreen /></ErrorBoundary>}
+      </Tab.Screen>
       <Tab.Screen name="Settings">{() => <ErrorBoundary><SettingsScreen /></ErrorBoundary>}</Tab.Screen>
     </Tab.Navigator>
   );
