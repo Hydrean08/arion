@@ -235,10 +235,10 @@ export default function ArtistDetailScreen() {
             </View>
           </View>
 
-          {/* Library quick-action: Want All */}
+          {/* Library quick-action: monochrome-style discography picker */}
           {fromLibrary && (
-            <TouchableOpacity style={styles.wantAllBtn} onPress={setAllWanted}>
-              <Text style={styles.wantAllText}>+ Want All Albums</Text>
+            <TouchableOpacity style={styles.wantAllBtn} onPress={() => setDiscModal(true)}>
+              <Text style={styles.wantAllText}>⤓ Download Discography</Text>
             </TouchableOpacity>
           )}
 
