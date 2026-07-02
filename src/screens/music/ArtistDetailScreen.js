@@ -373,6 +373,51 @@ export default function ArtistDetailScreen() {
         onClose={closeModal}
         onDownload={downloadTrack}
       />
+
+      <Modal visible={discModal} transparent animationType="fade" onRequestClose={() => setDiscModal(false)}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.discCard}>
+            <View style={styles.discHeader}>
+              <Text style={styles.discTitle}>Download Discography</Text>
+              <TouchableOpacity onPress={() => setDiscModal(false)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                <Text style={styles.discClose}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.discSub}>Select which releases to download for {artist.name}:</Text>
+            {TYPE_ROWS.map(([key, label]) => {
+              const count = discCounts[label];
+              const disabled = count === 0;
+              const on = discSel[key] && !disabled;
+              return (
+                <TouchableOpacity
+                  key={key}
+                  style={styles.discRow}
+                  disabled={disabled}
+                  activeOpacity={0.7}
+                  onPress={() => setDiscSel(s => ({ ...s, [key]: !s[key] }))}
+                >
+                  <View style={[styles.checkbox, on && styles.checkboxOn, disabled && styles.checkboxDisabled]}>
+                    {on ? <Text style={styles.checkboxTick}>✓</Text> : null}
+                  </View>
+                  <Text style={[styles.discRowText, disabled && styles.discRowDisabled]}>{label} ({count})</Text>
+                </TouchableOpacity>
+              );
+            })}
+            <View style={styles.discActions}>
+              <TouchableOpacity style={styles.discCancel} onPress={() => setDiscModal(false)}>
+                <Text style={styles.discCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.discDownload, (discQueuing || discSelCount === 0) && styles.discDownloadDisabled]}
+                disabled={discQueuing || discSelCount === 0}
+                onPress={downloadDiscography}
+              >
+                <Text style={styles.discDownloadText}>{discQueuing ? '…' : `Download (${discSelCount})`}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
