@@ -12,8 +12,10 @@ import LibraryScreen      from '../screens/library/LibraryScreen';
 import ItemDetailScreen   from '../screens/detail/ItemDetailScreen';
 import MusicHomeScreen    from '../screens/music/MusicHomeScreen';
 import ArtistDetailScreen from '../screens/music/ArtistDetailScreen';
+import DownloadsScreen    from '../screens/downloads/DownloadsScreen';
 import SettingsScreen     from '../screens/settings/SettingsScreen';
 import PredictorDebugScreen from '../screens/settings/PredictorDebugScreen';
+import { aria } from '../api/aria';
 
 export const navigationRef = createNavigationContainerRef();
 
