@@ -126,6 +126,10 @@ export default function MusicHomeScreen() {
     }
   }, [albumFilter]);
 
+  // Switching tabs clears any active album filter so the status pills (which
+  // belong to My Artists) never leak their selection into the AI/Logs tabs.
+  const selectTab = (t) => { setTab(t); setAlbumFilter(null); };
+
   if (loading) return <SkeletonArtistList showStats />;
 
   const showAlbumList = tab === 'artists' && albumFilter !== null;
