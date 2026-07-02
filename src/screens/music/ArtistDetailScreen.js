@@ -46,6 +46,9 @@ export default function ArtistDetailScreen() {
   const [downloading,  setDownloading]  = useState(new Set());
   const [syncing,      setSyncing]      = useState(false);
   const [following,    setFollowing]    = useState(false);
+  const [discModal,    setDiscModal]    = useState(false);
+  const [discSel,      setDiscSel]      = useState({ album: true, ep: true, single: true });
+  const [discQueuing,  setDiscQueuing]  = useState(false);
 
   useEffect(() => { setDiscSearch(''); setActiveTab('tracks'); }, [artist.id]);
 
