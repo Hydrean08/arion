@@ -15,7 +15,7 @@ const W          = Dimensions.get('window').width;
 const ALBUM_COLS = Math.floor(W / 160);
 const ALBUM_W    = (W - 32 - (ALBUM_COLS - 1) * 10) / ALBUM_COLS;
 
-const DISC_FILTERS = ['All', 'Albums', 'EPs', 'Singles'];
+const DISC_FILTERS = ['All', 'Albums', 'EPs', 'Singles', 'Variants'];
 const TABS         = [
   { key: 'tracks',      label: 'Tracks' },
   { key: 'discography', label: 'Discography' },
