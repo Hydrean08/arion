@@ -258,7 +258,7 @@ export default function MusicHomeScreen() {
                 <View style={styles.artistInfo}>
                   <Text style={styles.artistName}>{item.name}</Text>
                   <Text style={styles.artistMeta}>
-                    {item.album_done ?? 0}/{item.album_total ?? 0} albums
+                    {releaseSummary(item)}
                     {item.monitored ? '' : ' · unmonitored'}
                   </Text>
                 </View>
