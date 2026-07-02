@@ -33,13 +33,18 @@ function MusicStack() {
 }
 
 function TabNavigator() {
-  const [pendingCount, setPendingCount] = useState(0);
+  const [pendingCount, setPendingCount]         = useState(0);
+  const [activeDownloads, setActiveDownloads]   = useState(0);
 
   useEffect(() => {
     const poll = async () => {
       try {
         const stats = await orion.stats();
         setPendingCount((stats.pending ?? 0) + (stats.queued ?? 0));
+      } catch {}
+      try {
+        const dl = await aria.downloads();
+        setActiveDownloads(dl?.active ?? 0);
       } catch {}
     };
     poll();
