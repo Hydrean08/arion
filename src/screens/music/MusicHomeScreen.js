@@ -150,8 +150,9 @@ export default function MusicHomeScreen() {
         </View>
       )}
 
-      {/* Stats bar */}
-      {stats && (
+      {/* Library status filters — belong to My Artists only, so they don't
+          bleed into the AI/Logs tabs. Tapping one filters the album list. */}
+      {stats && tab === 'artists' && (
         <View style={styles.statsRow}>
           <StatPill label="Done"    value={stats.complete}    active={albumFilter === 'done'}    onPress={() => setAlbumFilter(f => f === 'done'    ? null : 'done')} />
           <StatPill label="Partial" value={stats.partial}     active={albumFilter === 'partial'} onPress={() => setAlbumFilter(f => f === 'partial' ? null : 'partial')} warn />
