@@ -16,6 +16,8 @@ const ALBUM_COLS = Math.floor(W / 160);
 const ALBUM_W    = (W - 32 - (ALBUM_COLS - 1) * 10) / ALBUM_COLS;
 
 const DISC_FILTERS = ['All', 'Albums', 'EPs', 'Singles', 'Variants'];
+// [record_type, count-key in discCounts] for the Download Discography picker.
+const TYPE_ROWS    = [['album', 'Albums'], ['ep', 'EPs'], ['single', 'Singles']];
 const TABS         = [
   { key: 'tracks',      label: 'Tracks' },
   { key: 'discography', label: 'Discography' },
