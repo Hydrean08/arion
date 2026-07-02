@@ -366,6 +366,12 @@ const styles = StyleSheet.create({
   listContent:       { paddingBottom: 20 },
   empty:             { color: colors.muted, textAlign: 'center', padding: 40, lineHeight: 22 },
 
+  // Header for the filtered album sub-view — makes it read as its own section
+  // distinct from the artist list, with a clear way back.
+  filterHeader:      { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: 12, marginTop: 6, marginBottom: 2, paddingHorizontal: 12, paddingVertical: 8, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: 10 },
+  filterHeaderText:  { color: colors.text, fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+  filterHeaderClear: { color: colors.accent2, fontSize: 13, fontWeight: '700' },
+
   // Artist rows
   artistRow:         { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: colors.border },
   artistThumb:       { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.card },
