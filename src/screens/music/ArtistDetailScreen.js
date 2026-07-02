@@ -280,7 +280,7 @@ export default function ArtistDetailScreen() {
                 onChangeText={setDiscSearch}
               />
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
-                {DISC_FILTERS.map(f => (
+                {DISC_FILTERS.filter(f => f !== 'Variants' || discCounts.Variants > 0).map(f => (
                   <TouchableOpacity
                     key={f}
                     style={[styles.filterPill, discFilter === f && styles.filterPillActive]}
