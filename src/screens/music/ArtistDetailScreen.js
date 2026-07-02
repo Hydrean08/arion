@@ -278,7 +278,7 @@ export default function ArtistDetailScreen() {
                     style={[styles.filterPill, discFilter === f && styles.filterPillActive]}
                     onPress={() => setDiscFilter(f)}
                   >
-                    <Text style={[styles.filterText, discFilter === f && styles.filterTextActive]}>{f}</Text>
+                    <Text style={[styles.filterText, discFilter === f && styles.filterTextActive]}>{f} ({discCounts[f] ?? 0})</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
