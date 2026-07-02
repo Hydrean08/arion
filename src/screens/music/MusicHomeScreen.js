@@ -191,23 +191,39 @@ export default function MusicHomeScreen() {
 
       {tab === 'artists' ? (
         showAlbumList ? (
-          loadingAlbums
-            ? <ActivityIndicator color={colors.accent} style={{ marginTop: 40 }} />
-            : <FlashList
-                data={filteredAlbums}
-                estimatedItemSize={68}
-                keyExtractor={item => String(item.id)}
-                contentContainerStyle={styles.listContent}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor={colors.accent} />}
-                ListEmptyComponent={<Text style={styles.empty}>No albums with this status.</Text>}
-                renderItem={({ item }) => (
-                  <AlbumRow
-                    album={item}
-                    onPress={() => openArtist(item.artist_id)}
-                    onRetry={albumFilter === 'failed' || albumFilter === 'partial' ? retryAlbum : null}
-                  />
-                )}
-              />
+          <>
+            <View style={styles.filterHeader}>
+              <Text style={styles.filterHeaderText}>
+                {FILTER_LABEL[albumFilter]}
+                {!loadingAlbums ? ` · ${filteredAlbums.length} ${filteredAlbums.length === 1 ? 'album' : 'albums'}` : ''}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setAlbumFilter(null)}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                accessibilityRole="button"
+                accessibilityLabel="Clear filter"
+              >
+                <Text style={styles.filterHeaderClear}>✕ Clear</Text>
+              </TouchableOpacity>
+            </View>
+            {loadingAlbums
+              ? <ActivityIndicator color={colors.accent} style={{ marginTop: 40 }} />
+              : <FlashList
+                  data={filteredAlbums}
+                  estimatedItemSize={68}
+                  keyExtractor={item => String(item.id)}
+                  contentContainerStyle={styles.listContent}
+                  refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor={colors.accent} />}
+                  ListEmptyComponent={<Text style={styles.empty}>No albums with this status.</Text>}
+                  renderItem={({ item }) => (
+                    <AlbumRow
+                      album={item}
+                      onPress={() => openArtist(item.artist_id)}
+                      onRetry={albumFilter === 'failed' || albumFilter === 'partial' ? retryAlbum : null}
+                    />
+                  )}
+                />}
+          </>
         ) : (
           <FlashList
             data={myArtists}
