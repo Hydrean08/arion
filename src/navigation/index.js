@@ -67,10 +67,11 @@ function TabNavigator() {
         tabBarInactiveTintColor: colors.muted,
         tabBarIcon: ({ focused, color, size }) => {
           const icons = {
-            Discover: focused ? 'search'        : 'search-outline',
-            Video:    focused ? 'film'           : 'film-outline',
-            Music:    focused ? 'musical-notes'  : 'musical-notes-outline',
-            Settings: focused ? 'settings'       : 'settings-outline',
+            Discover:  focused ? 'search'           : 'search-outline',
+            Video:     focused ? 'film'              : 'film-outline',
+            Music:     focused ? 'musical-notes'     : 'musical-notes-outline',
+            Downloads: focused ? 'cloud-download'    : 'cloud-download-outline',
+            Settings:  focused ? 'settings'          : 'settings-outline',
           };
           return <Ionicons name={icons[route.name]} size={size} color={color} />;
         },
