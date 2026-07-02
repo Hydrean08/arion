@@ -91,7 +91,12 @@ export const aria = {
   albumsByStatus:  (status)                        => req(`/api/albums?status=${encodeURIComponent(status)}`),
   addAlbum:        (artistId, title, year)         => req(`/api/artists/${artistId}/albums`, 'POST', { title, year }),
   setAlbumWanted:  (albumId, wanted)               => req(`/api/albums/${albumId}/wanted?wanted=${wanted}`, 'PATCH'),
-  setAllWanted:    (artistId, wanted)              => req(`/api/artists/${artistId}/albums/wanted?wanted=${wanted}`, 'PATCH'),
+  // `types` (optional array like ['album','ep','single']) scopes the bulk
+  // action to those release types — used by the Download Discography picker.
+  setAllWanted:    (artistId, wanted, types)       => {
+    const q = types && types.length ? `&types=${encodeURIComponent(types.join(','))}` : '';
+    return req(`/api/artists/${artistId}/albums/wanted?wanted=${wanted}${q}`, 'PATCH');
+  },
   retryAlbum:      (albumId)                       => req(`/api/albums/${albumId}/retry`, 'POST'),
   albumTracks:     (albumId)                       => req(`/api/albums/${albumId}/tracks`),
 
