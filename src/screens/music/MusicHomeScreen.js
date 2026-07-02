@@ -28,6 +28,21 @@ const FILTER_LABEL = {
   done: 'Done', partial: 'Partial', pending: 'Pending', active: 'Active', failed: 'Failed',
 };
 
+// Break a library artist's releases into "12 albums · 2 EPs · 65 singles",
+// omitting zero types — so the list stops calling 65 singles "albums". Falls
+// back to the old N/total count when the per-type fields aren't present.
+function releaseSummary(item) {
+  const nA = item.n_albums ?? 0, nE = item.n_eps ?? 0, nS = item.n_singles ?? 0;
+  if (nA + nE + nS === 0) {
+    return `${item.album_done ?? 0}/${item.album_total ?? 0} releases`;
+  }
+  const parts = [];
+  if (nA) parts.push(`${nA} album${nA === 1 ? '' : 's'}`);
+  if (nE) parts.push(`${nE} EP${nE === 1 ? '' : 's'}`);
+  if (nS) parts.push(`${nS} single${nS === 1 ? '' : 's'}`);
+  return parts.join(' · ');
+}
+
 export default function MusicHomeScreen() {
   const navigation = useNavigation();
   const [tab,             setTab]             = useState('artists');
