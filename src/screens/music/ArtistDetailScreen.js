@@ -116,6 +116,7 @@ export default function ArtistDetailScreen() {
     Singles:  primary.filter(a => typeOf(a) === 'single').length,
     Variants: albums.filter(a => a.is_variant).length,
   };
+  const discSelCount = TYPE_ROWS.filter(([k]) => discSel[k]).reduce((n, [, lbl]) => n + discCounts[lbl], 0);
 
   const openAlbum = useCallback(async (album) => {
     setTrackModal(album);
