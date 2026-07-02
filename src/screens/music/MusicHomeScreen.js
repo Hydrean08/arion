@@ -18,9 +18,14 @@ const LOG_LEVEL_COLOR = { error: colors.red, warn: colors.yellow, info: colors.a
 const FILTER_TO_STATUS = {
   done:    'complete',
   partial: 'partial',
-  pending: 'missing',
+  pending: 'pending',   // pseudo-status on the backend: wanted + monitored + missing
   active:  'downloading',
   failed:  'error',
+};
+
+// Human labels for the active-filter header, so the album sub-view names itself.
+const FILTER_LABEL = {
+  done: 'Done', partial: 'Partial', pending: 'Pending', active: 'Active', failed: 'Failed',
 };
 
 export default function MusicHomeScreen() {
