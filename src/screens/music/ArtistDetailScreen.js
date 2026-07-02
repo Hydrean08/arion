@@ -172,14 +172,21 @@ export default function ArtistDetailScreen() {
     } finally { setFollowing(false); }
   }, [artist.name]);
 
-  const setAllWanted = useCallback(async () => {
+  const downloadDiscography = useCallback(async () => {
+    const types = ['album', 'ep', 'single'].filter(t => discSel[t]);
+    if (!types.length) return;
+    setDiscQueuing(true);
     try {
-      await aria.setAllWanted(artist.id, true);
-      Alert.alert('Queued', 'All albums marked as wanted.');
+      const res = await aria.setAllWanted(artist.id, true, types);
+      aria.runCycle().catch(() => {});   // kick a cycle so it starts now, not next hour
+      setAlbums(prev => prev.map(a =>
+        (!a.is_variant && types.includes(a.record_type || a.type)) ? { ...a, wanted: true } : a));
+      setDiscModal(false);
+      Alert.alert('Queued', `${res.updated ?? 0} release${res.updated === 1 ? '' : 's'} queued for download.`);
     } catch (e) {
       Alert.alert('Error', e.message);
-    }
-  }, [artist.id]);
+    } finally { setDiscQueuing(false); }
+  }, [artist.id, discSel]);
 
   const wantAlbum = useCallback(async (albumId, currentWanted) => {
     const newWanted = !currentWanted;
