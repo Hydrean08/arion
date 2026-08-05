@@ -9,7 +9,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, ActivityIndicator,
-  StyleSheet, RefreshControl, Modal, TextInput, Alert,
+  StyleSheet, RefreshControl, Modal, TextInput, Alert, Switch,
 } from 'react-native';
 import { aria, ApiError } from '../../api/aria';
 import { colors } from '../../theme';
@@ -31,6 +31,8 @@ export default function AriaAITab() {
   const [moodOpen, setMoodOpen] = useState(false);
   const [moodValue, setMoodValue] = useState('');
   const [moodSubmitting, setMoodSubmitting] = useState(false);
+  // true = build only from tracks you own (grounded); false = discover anything.
+  const [fromLibrary, setFromLibrary] = useState(true);
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -39,6 +41,9 @@ export default function AriaAITab() {
 
   const [playlistOpen, setPlaylistOpen] = useState(false);
   const [playlistViewing, setPlaylistViewing] = useState(null);
+  const [exporting, setExporting] = useState(false);
+  // Whether the Aria server has Navidrome configured — hides the export button if not.
+  const [ndConfigured, setNdConfigured] = useState(false);
 
   const [refreshingReleases, setRefreshingReleases] = useState(false);
 
@@ -53,6 +58,7 @@ export default function AriaAITab() {
       ]);
       setSuggestions(s); setReleases(r); setPlaylists(p);
       setLibraryArtists(new Set((libArtists || []).map(a => (a.name || '').toLowerCase().trim())));
+      aria.navidromeStatus().then(n => setNdConfigured(!!n?.configured)).catch(() => setNdConfigured(false));
       if (forceDigest || digest == null) {
         setDigestLoading(true);
         aria.aiDigest()
@@ -105,10 +111,14 @@ export default function AriaAITab() {
     if (!m) return;
     setMoodSubmitting(true);
     try {
-      await aria.generateMoodPlaylist(m);
+      await aria.generateMoodPlaylist(m, !fromLibrary);
       setMoodOpen(false);
       setMoodValue('');
-      Alert.alert('Queued', 'Mood playlist is generating. It will appear in the list in ~10-30s — pull to refresh.');
+      Alert.alert('Queued',
+        (fromLibrary
+          ? 'Building a playlist from your library. '
+          : 'Discovering tracks (some may not be in your library yet). ') +
+        'It appears in ~10-30s — pull to refresh.');
     } catch (e) {
       Alert.alert('Failed', e?.message || String(e));
     } finally {
@@ -143,6 +153,26 @@ export default function AriaAITab() {
         }
       },
     ]);
+  };
+
+  const addToNavidrome = async () => {
+    if (!playlistViewing || exporting) return;
+    setExporting(true);
+    try {
+      const r = await aria.exportToNavidrome(playlistViewing.id);
+      const miss = r?.missing || [];
+      let msg = `Added ${r.matched} of ${r.total} tracks to "${r.playlist_name}" in Navidrome.`;
+      if (miss.length) {
+        const shown = miss.slice(0, 8).map(m => `• ${m.artist} — ${m.title}`).join('\n');
+        msg += `\n\n${miss.length} not in your library yet:\n${shown}` +
+               (miss.length > 8 ? `\n…and ${miss.length - 8} more` : '');
+      }
+      Alert.alert('Added to Navidrome', msg);
+    } catch (e) {
+      Alert.alert('Export failed', e?.message || 'Could not reach Navidrome.');
+    } finally {
+      setExporting(false);
+    }
   };
 
   if (loading) {
@@ -271,6 +301,22 @@ export default function AriaAITab() {
               autoFocus
               onSubmitEditing={submitMood}
             />
+            <View style={styles.toggleRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.toggleLabel}>{fromLibrary ? 'From my library' : 'Discover new'}</Text>
+                <Text style={styles.toggleHint}>
+                  {fromLibrary
+                    ? 'Only tracks you own — every song plays'
+                    : 'May suggest music you don’t have yet'}
+                </Text>
+              </View>
+              <Switch
+                value={fromLibrary}
+                onValueChange={setFromLibrary}
+                trackColor={{ true: colors.accent, false: colors.border }}
+                accessibilityLabel="Build playlist from my library only"
+              />
+            </View>
             <View style={styles.modalActions}>
               <TouchableOpacity style={styles.modalBtnGhost} onPress={() => setMoodOpen(false)}>
                 <Text style={styles.modalBtnGhostText}>Cancel</Text>
@@ -342,6 +388,18 @@ export default function AriaAITab() {
                 </View>
               ))}
             </ScrollView>
+            {ndConfigured ? (
+              <TouchableOpacity
+                style={[styles.modalBtn, { marginTop: 12 }, exporting && { opacity: 0.6 }]}
+                onPress={addToNavidrome}
+                disabled={exporting}
+                accessibilityRole="button"
+                accessibilityLabel="Add this playlist to Navidrome">
+                <Text style={styles.modalBtnText}>
+                  {exporting ? 'Adding to Navidrome…' : '＋ Add to Navidrome'}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
             <View style={styles.modalActions}>
               <TouchableOpacity style={[styles.modalBtnGhost, { borderColor: colors.red }]} onPress={deletePlaylist}>
                 <Text style={[styles.modalBtnGhostText, { color: colors.red }]}>Delete</Text>
@@ -401,6 +459,9 @@ const styles = StyleSheet.create({
   modalSub:      { fontSize: 13, color: colors.muted, marginTop: 6, marginBottom: 14 },
   modalInput:    { backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, color: colors.text, fontSize: 15 },
   modalActions:  { flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginTop: 14 },
+  toggleRow:     { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 14 },
+  toggleLabel:   { fontSize: 14, color: colors.text, fontWeight: '600' },
+  toggleHint:    { fontSize: 12, color: colors.muted, marginTop: 2 },
   modalBtn:      { backgroundColor: colors.accent, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8 },
   modalBtnText:  { color: colors.text, fontWeight: '700' },
   modalBtnGhost: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8, borderWidth: 1, borderColor: colors.border },

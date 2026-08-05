@@ -123,8 +123,12 @@ export const aria = {
   dismissSuggestion: (id)                          => req(`/api/ai-suggestions/${id}`, 'DELETE'),
   aiPlaylists:     ()                              => req('/api/ai-playlists'),
   deletePlaylist:  (id)                            => req(`/api/ai-playlists/${id}`, 'DELETE'),
-  generatePlaylist:    ()                          => req('/api/ai-playlists/generate', 'POST'),
-  generateMoodPlaylist: (mood)                     => req('/api/ai-playlists/mood', 'POST', { mood }),
+  // Grounded (from your library) by default; pass discovery=true for suggest-anything.
+  generatePlaylist:    (discovery = false)         => req(`/api/ai-playlists/generate${discovery ? '?discovery=true' : ''}`, 'POST'),
+  generateMoodPlaylist: (mood, discovery = false)  => req('/api/ai-playlists/mood', 'POST', { mood, discovery }),
+  // Export an AI playlist to Navidrome (matches its tracks against the library).
+  exportToNavidrome:   (id)                        => req(`/api/ai-playlists/${id}/export-navidrome`, 'POST'),
+  navidromeStatus:     ()                          => req('/api/navidrome/status'),
   aiReleases:      ()                              => req('/api/ai-releases'),
   dismissRelease:  (id)                            => req(`/api/ai-releases/${id}`, 'DELETE'),
   refreshReleases: ()                              => req('/api/ai-releases/refresh', 'POST'),
