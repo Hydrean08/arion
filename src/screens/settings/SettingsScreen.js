@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
-  StyleSheet, ScrollView, Alert,
+  StyleSheet, ScrollView, Alert, Linking,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../theme';
 import { getConfig, saveConfig } from '../../api/config';
@@ -137,6 +138,120 @@ export default function SettingsScreen() {
     );
   }, []);
 
+  const importLibrary = useCallback(() => {
+    Alert.alert(
+      'Import Disk',
+      'Scan your music folder and add everything on disk to Aria. Only adds library entries — never moves or deletes files. Takes a minute or two.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Import', onPress: async () => {
+          try {
+            const r = await aria.importLibrary();
+            Alert.alert('Import complete', `+${r.artists_created} artists, +${r.albums_created} albums, ${r.albums_reconciled} reconciled.`);
+          } catch (e) { Alert.alert('Error', e.message); }
+        }},
+      ],
+    );
+  }, []);
+
+  const completeArtists = useCallback(() => {
+    Alert.alert(
+      'Complete Artists',
+      'Fill in imported artists’ photos and full discographies from the catalog. Runs in the background; nothing auto-downloads. Ambiguous / soundtrack names are skipped.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Start', onPress: async () => {
+          try {
+            await aria.enrichImported();
+            Alert.alert('Started', 'Enrichment is running in the background — artists will gain photos and discographies over the next few minutes. Pull to refresh to see them.');
+          } catch (e) { Alert.alert('Error', e.message); }
+        }},
+      ],
+    );
+  }, []);
+
+  const cleanStrays = useCallback(() => {
+    Alert.alert(
+      'Clean Stray Files',
+      'Fingerprint loose / untagged files, give them a real artist and title, and file root-level strays into the artist’s folder. Reversible. Takes a minute or two.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Clean', onPress: async () => {
+          try {
+            const r = await aria.cleanupStrays();
+            Alert.alert('Stray cleanup', `Tagged ${r.tagged} file${r.tagged === 1 ? '' : 's'}, moved ${r.moved}. Run Import Disk to register them.`);
+          } catch (e) { Alert.alert('Error', e.message); }
+        }},
+      ],
+    );
+  }, []);
+
+  const fixDumpArtists = useCallback(() => {
+    Alert.alert(
+      'Fix Dump / Collab Artists',
+      'Split "Discography" dumps and collab-string artists into their real primary artist so they become discoverable. Verified against the catalog; reversible.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Fix', onPress: async () => {
+          try {
+            const r = await aria.fixDumpArtists();
+            Alert.alert('Fix artists', `Split ${r.artists_fixed} artist${r.artists_fixed === 1 ? '' : 's'}, retagged ${r.files_fixed} file${r.files_fixed === 1 ? '' : 's'}.`);
+          } catch (e) { Alert.alert('Error', e.message); }
+        }},
+      ],
+    );
+  }, []);
+
+  const checkAppUpdate = useCallback(async () => {
+    try {
+      const { aria: ariaBase } = await getConfig();
+      const j = await aria.appVersion();
+      if (!j.apkLatest) {
+        Alert.alert('No build', 'No Arion APK is published on the server right now.');
+        return;
+      }
+      const INSTALLED = '@arion/installedApk';
+      const installed = await AsyncStorage.getItem(INSTALLED);
+      const download = async () => {
+        // Record intent before handing to the OS installer; worst case is a
+        // stale "up to date", recoverable via "Download anyway".
+        await AsyncStorage.setItem(INSTALLED, j.apkLatest);
+        Linking.openURL(ariaBase + j.apkUrl);
+      };
+      if (installed === j.apkLatest) {
+        Alert.alert(
+          'Up to date',
+          `Latest APK: ${j.apkLatest}\n\nThis matches what you last installed here.`,
+          [{ text: 'OK', style: 'cancel' }, { text: 'Download anyway', onPress: download }],
+        );
+        return;
+      }
+      Alert.alert(
+        'Update available',
+        `Latest APK: ${j.apkLatest}\n\nTap Download to fetch and install. Android will ask once to allow installs from the browser.`,
+        [{ text: 'Cancel', style: 'cancel' }, { text: 'Download', onPress: download }],
+      );
+    } catch (e) {
+      Alert.alert('Update check failed', e?.message || String(e));
+    }
+  }, []);
+
+  const undoCleanup = useCallback(() => {
+    Alert.alert(
+      'Undo Last Cleanup',
+      'Move relocated files back and restore original tags from the stray-cleanup and artist-fix passes. Does not affect enrichment.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Undo', style: 'destructive', onPress: async () => {
+          try {
+            const r = await aria.cleanupUndo();
+            Alert.alert('Undone', `Moved back ${r.moved_back} file${r.moved_back === 1 ? '' : 's'}, restored tags on ${r.tags_restored}.`);
+          } catch (e) { Alert.alert('Error', e.message); }
+        }},
+      ],
+    );
+  }, []);
+
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
@@ -238,6 +353,42 @@ export default function SettingsScreen() {
         >
           <Text style={styles.actionIcon}>🔍</Text>
           <Text style={styles.actionLabel}>Predictor Debug</Text>
+        </TouchableOpacity>
+
+        <View style={styles.divider} />
+        <Text style={styles.sectionHead}>Library Maintenance</Text>
+
+        <TouchableOpacity style={styles.actionBtn} onPress={importLibrary}>
+          <Text style={styles.actionIcon}>💽</Text>
+          <Text style={styles.actionLabel}>Import Disk</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.actionBtn} onPress={completeArtists}>
+          <Text style={styles.actionIcon}>🎨</Text>
+          <Text style={styles.actionLabel}>Complete Artists (photos + discographies)</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.actionBtn} onPress={cleanStrays}>
+          <Text style={styles.actionIcon}>🧹</Text>
+          <Text style={styles.actionLabel}>Clean Stray Files</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.actionBtn} onPress={fixDumpArtists}>
+          <Text style={styles.actionIcon}>🔧</Text>
+          <Text style={styles.actionLabel}>Fix Dump / Collab Artists</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.actionBtn} onPress={undoCleanup}>
+          <Text style={styles.actionIcon}>↩️</Text>
+          <Text style={styles.actionLabel}>Undo Last Cleanup</Text>
+        </TouchableOpacity>
+
+        <View style={styles.divider} />
+        <Text style={styles.sectionHead}>App Update</Text>
+
+        <TouchableOpacity style={styles.actionBtn} onPress={checkAppUpdate}>
+          <Text style={styles.actionIcon}>⬆️</Text>
+          <Text style={styles.actionLabel}>Check for Arion Update</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

@@ -118,6 +118,19 @@ export const aria = {
   // { scanned_artists, matched_albums, unmatched_dirs }.
   scanExisting:    ()                              => req('/api/scan-existing', 'POST'),
 
+  // ── Library maintenance (disk ingest, enrichment, cleanup) ────────────
+  // These walk/fingerprint the whole library, so they can block for a
+  // minute or two — give them a generous timeout. enrichImported returns
+  // immediately (202) and runs in the background.
+  importLibrary:   ()  => req('/api/library/ingest', 'POST', null, { timeout: 300000 }),
+  enrichImported:  ()  => req('/api/library/enrich-imported', 'POST'),
+  cleanupStrays:   ()  => req('/api/library/cleanup', 'POST', null, { timeout: 300000 }),
+  cleanupUndo:     ()  => req('/api/library/cleanup/undo', 'POST', null, { timeout: 180000 }),
+  fixDumpArtists:  ()  => req('/api/library/fix-artists', 'POST', null, { timeout: 300000 }),
+
+  // ── App OTA (Aria serves the Arion APK; endpoints live outside /api) ──
+  appVersion:      ()  => req('/app/version', 'GET', null, { skipCache: true }),
+
   // ── AI (GLM-4 powered) ────────────────────────────────────────────────
   aiSuggestions:   ()                              => req('/api/ai-suggestions'),
   dismissSuggestion: (id)                          => req(`/api/ai-suggestions/${id}`, 'DELETE'),
